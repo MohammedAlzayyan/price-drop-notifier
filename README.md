@@ -1,16 +1,16 @@
 # Price-Drop Notifier
 
-Embeddable widget, Tampermonkey userscript, and Express API for subscribing to price-drop notifications on Amazon and eBay product pages.
+Embeddable widget + Tampermonkey userscript + Express API for subscribing to price-drop notifications on Amazon and eBay product pages.
 
 ---
 
-## Overview
+## Summary
 
-This project provides:
-
-- **Embeddable widget**: A small JS widget that renders an inline email form ("Email me if this product gets cheaper") and POSTs to the API.
-- **Userscript (Tampermonkey)**: Injects the widget onto Amazon and eBay product pages, extracting product name, price, and URL.
-- **Express backend**: API at `POST /subscribe-price-drop`, serves widget bundle at `/assets/price-drop-widget.min.js`, and embed page at `/embed/price-drop.html`.
+| Component | Description |
+|-----------|-------------|
+| **Widget** | JS widget (Shadow DOM) with email form; POSTs to API |
+| **Userscript** | Injects widget on Amazon/eBay, extracts product name, price, URL |
+| **Backend** | `POST /subscribe-price-drop`, serves `/assets/price-drop-widget.min.js` and `/embed/price-drop.html` |
 
 ---
 
@@ -19,18 +19,11 @@ This project provides:
 ```
 project-root/
 ├── widget/           # Widget source (TypeScript)
-│   ├── src/
-│   └── dist/
-├── userscript/
-│   └── price-drop-injector.user.js
+├── userscript/       # Tampermonkey script
 ├── server/           # Express app
-├── embed/
-│   └── price-drop.html   # Iframe fallback page
-├── demo/
-│   └── csp-demo.html     # CSP-strict demo page
-├── assets/           # Widget bundle, demo CSS/JS (built by widget)
-├── README.md
-└── NOTES.md
+├── embed/            # Iframe fallback page
+├── demo/             # csp-demo.html
+└── assets/           # Widget bundle (built)
 ```
 
 ---
@@ -41,16 +34,18 @@ project-root/
 
 - Node.js 18+
 - npm
+- [Tampermonkey](https://www.tampermonkey.net/)
+- [ngrok](https://ngrok.com/) — required for using the widget on Amazon/eBay (HTTPS)
 
-### 1. Build everything
+### Step 1: Build
 
 ```bash
 npm run build
 ```
 
-This builds the widget (copies to `assets/price-drop-widget.min.js`) and the server.
+Builds the widget and server.
 
-### 2. Start the server
+### Step 2: Start the server
 
 ```bash
 npm start
@@ -58,16 +53,37 @@ npm start
 
 Server runs on `http://localhost:3000`.
 
-### 3. Demo page
+### Step 3: ngrok tunnel (for Amazon/eBay)
 
-Open: `http://localhost:3000/demo/csp-demo.html`
+Amazon and eBay use HTTPS; loading HTTP resources causes Mixed Content errors. Use ngrok:
 
-### 4. Userscript (Tampermonkey)
+```bash
+ngrok http 3000
+```
 
-1. Install [Tampermonkey](https://www.tampermonkey.net/).
+Copy the HTTPS URL (e.g. `https://xxxx-xx-xx-xx-xx.ngrok-free.app`).
+
+### Step 4: Update userscript URLs
+
+In `userscript/price-drop-injector.user.js`, set:
+
+```javascript
+var WIDGET_SCRIPT_URL = "https://YOUR-NGROK-URL/assets/price-drop-widget.min.js";
+var WIDGET_IFRAME_URL = "https://YOUR-NGROK-URL/embed/price-drop.html";
+```
+
+Replace `YOUR-NGROK-URL` with your ngrok HTTPS domain.
+
+### Step 5: Tampermonkey
+
+1. Install Tampermonkey.
 2. Create a new userscript and paste the contents of `userscript/price-drop-injector.user.js`.
-3. Ensure the server is running at `http://localhost:3000`.
-4. Visit an Amazon or eBay product page — the widget should appear.
+3. Save and enable.
+
+### Step 6: Test
+
+- **Demo (local):** `http://localhost:3000/demo/csp-demo.html`
+- **Amazon/eBay:** Visit any product page; the widget should appear and accept subscriptions.
 
 ---
 
@@ -75,7 +91,7 @@ Open: `http://localhost:3000/demo/csp-demo.html`
 
 ### POST /subscribe-price-drop
 
-Accepts JSON or form-encoded body:
+**Request (JSON or form-encoded):**
 
 ```json
 {
@@ -90,18 +106,18 @@ Accepts JSON or form-encoded body:
 
 **Responses:**
 
-- `200` — `{ ok: true }` — Success
-- `400` — `{ ok: false, error: "invalid_email" }` — Invalid email
-- `409` — `{ ok: false, error: "already_subscribed" }` — Already subscribed
-- `5xx` — `{ ok: false, error: "server_error" }` — Server error
+| Status | Response |
+|--------|----------|
+| 200 | `{ ok: true }` — Success |
+| 400 | `{ ok: false, error: "invalid_email" }` |
+| 409 | `{ ok: false, error: "already_subscribed" }` |
+| 5xx | `{ ok: false, error: "server_error" }` |
 
 ---
 
 ## Embed Options
 
-### Script embed
-
-Load the widget and call:
+**Script embed:**
 
 ```javascript
 PriceDropWidget.initPriceDropWidget({
@@ -111,7 +127,7 @@ PriceDropWidget.initPriceDropWidget({
 });
 ```
 
-### Iframe fallback
+**Iframe fallback:**
 
 ```
 /embed/price-drop.html?name=Product&price=$99.99&url=https://...
@@ -121,7 +137,19 @@ PriceDropWidget.initPriceDropWidget({
 
 ## CORS Notes
 
-The server sets `Access-Control-Allow-Origin: *` for cross-origin requests. For production, restrict this to your allowed origins.
+The server sets `Access-Control-Allow-Origin: *`. For production, restrict to allowed origins.
+
+---
+
+## Optional: Remove Unused Files
+
+These files are not used by the app and can be deleted:
+
+| File | Reason |
+|------|--------|
+| `demo/index.html` | Demo uses `csp-demo.html` only |
+| `server/express-shim.d.ts` | Redundant with `@types/express` |
+| `widget/dist/.gitkeep` | Placeholder only; safe to remove |
 
 ---
 

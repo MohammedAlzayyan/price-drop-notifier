@@ -3,9 +3,7 @@
 // @namespace    https://mohammed-alzayyan.dev/
 // @version      0.1.0
 // @description  Inject a price-drop subscription widget into Amazon and eBay product pages.
-// @match        https://www.amazon.*/*
-// @match        https://smile.amazon.*/*
-// @match        https://www.ebay.*/*
+// @match        *://*/*
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -14,6 +12,8 @@
   "use strict";
 
   // --- Configuration --------------------------------------------------------
+
+  // When running the server, it should be HTTPS like ngrok instead of localhost.
 
   // External widget bundle (expects window.PriceDropWidget.initPriceDropWidget)
   var WIDGET_SCRIPT_URL =
