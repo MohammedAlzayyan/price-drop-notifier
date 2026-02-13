@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Price Drop Widget – CSP Demo</title>
+
+    <!-- Strict CSP example (should also be set as an HTTP header):
+         Content-Security-Policy: default-src 'self' -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'self';"
+    />
+
+    <!-- All styles loaded from same origin, no inline styles -->
+    <link rel="stylesheet" href="/assets/demo-page.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="site-logo">Example Store</div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="product">
+        <div class="product__media">
+          <!-- Placeholder: use data URI to avoid external image dependency under CSP -->
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='240' viewBox='0 0 320 240'%3E%3Crect fill='%23e5e7eb' width='320' height='240'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='sans-serif' font-size='14'%3EProduct Image%3C/text%3E%3C/svg%3E"
+            alt="Noise-Cancelling Wireless Headphones"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="product__info">
+          <h1 class="product__title">
+            Noise-Cancelling Wireless Headphones
+          </h1>
+
+          <div class="product__price">
+            <span class="product__price-current">$199.99</span>
+          </div>
+
+          <p class="product__description">
+            Lightweight wireless headphones with active noise cancellation and
+            all‑day battery life. Perfect for commuting, travel, and focused
+            work.
+          </p>
+
+          <!--
+            Widget root:
+            - Product data is exposed via data-* attributes.
+            - External JS (loaded below) reads these attributes and calls:
+              PriceDropWidget.initPriceDropWidget({ name, price, url, mountEl })
+          -->
+          <div
+            id="price-drop-widget-root"
+            class="product__widget-slot"
+            data-product-name="Noise-Cancelling Wireless Headphones"
+            data-product-price="$199.99"
+            data-product-url="https://example.test/product/noise-cancelling-wireless-headphones"
+          ></div>
+
+          <div class="product__meta">
+            <p>Ships in 2–3 days. Free returns within 30 days.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo-status">
+        <h2>Widget Demo</h2>
+        <p>
+          This page demonstrates the Price Drop widget under a strict
+          <code>default-src 'self'</code> Content Security Policy.
+        </p>
+        <ol>
+          <li>Widget JS is loaded from the same origin only.</li>
+          <li>No inline scripts or styles are used.</li>
+          <li>
+            On load, the demo script passes the product data (name, price, URL)
+            to the widget.
+          </li>
+          <li>
+            When you submit a valid email, the backend simulates a
+            success/validation/error response.
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <!-- All scripts loaded from same origin, no inline JS, no eval -->
+    <script src="/assets/price-drop-widget.min.js" defer></script>
+    <script src="/assets/demo-page.js" defer></script>
+  </body>
+</html>
+

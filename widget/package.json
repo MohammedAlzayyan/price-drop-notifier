@@ -1,0 +1,15 @@
+{
+  "name": "price-drop-widget",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/widget.js",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "clean": "node -e \"import('fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\" && mkdir dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0"
+  }
+}

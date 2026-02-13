@@ -1,0 +1,203 @@
+/* All styles are scoped under .pd-widget-root to avoid selector collisions.
+   In Shadow DOM, these rules are further isolated from host-page CSS. */
+
+   .pd-widget-root {
+    /* Reserve vertical space to reduce layout shift on injection */
+    min-height: 120px;
+  
+    /* Use CSS variables with fallbacks so host can theme if desired */
+    --pd-accent: var(--pd-accent, #2563eb);
+    --pd-bg: var(--pd-bg, #ffffff);
+  
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #111827;
+  }
+  
+  /* Reset potentially dangerous inherited styles inside the widget */
+  .pd-widget-root,
+  .pd-widget-root * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+    list-style: none;
+  }
+  
+  /* Container layout */
+  .pd-widget-root {
+    display: block;
+  }
+  
+  .pd-widget {
+    width: 100%;
+    max-width: 360px;
+    background-color: var(--pd-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Responsive behavior for narrow containers */
+  @media (max-width: 420px) {
+    .pd-widget {
+      max-width: 100%;
+      padding: 10px 12px;
+    }
+  }
+  
+  /* Form layout */
+  .pd-widget__form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .pd-widget__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* Labels */
+  .pd-widget__label {
+    font-size: 12px;
+    color: #4b5563;
+  }
+  
+  /* Inputs */
+  .pd-widget__input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.9);
+    background-color: #f9fafb;
+    color: #111827;
+    outline: none;
+    transition: border-color 120ms ease-out, box-shadow 120ms ease-out,
+      background-color 120ms ease-out;
+  }
+  
+  .pd-widget__input:focus {
+    border-color: var(--pd-accent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pd-accent) 75%, transparent);
+    background-color: #ffffff;
+  }
+  
+  .pd-widget__input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* Button */
+  .pd-widget__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .pd-widget__button {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background-color: var(--pd-accent);
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 120ms ease-out, transform 80ms ease-out,
+      box-shadow 120ms ease-out, opacity 80ms ease-out;
+  }
+  
+  .pd-widget__button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--pd-accent) 85%, #000 15%);
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.25);
+  }
+  
+  .pd-widget__button:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.3);
+  }
+  
+  .pd-widget__button:disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+  }
+  
+  /* Status text */
+  .pd-widget__status {
+    min-height: 18px; /* reserves space even with empty messages */
+    font-size: 12px;
+    color: #4b5563;
+  }
+  
+  /* Success / error visual states */
+  .pd-widget--success .pd-widget__status {
+    color: #15803d;
+  }
+  
+  .pd-widget--error .pd-widget__status {
+    color: #b91c1c;
+  }
+  
+  /* Subtle success / error animations (CSS only) */
+  @keyframes pd-status-success-pulse {
+    0% {
+      background-color: rgba(22, 163, 74, 0);
+    }
+    25% {
+      background-color: rgba(22, 163, 74, 0.12);
+    }
+    100% {
+      background-color: rgba(22, 163, 74, 0);
+    }
+  }
+  
+  @keyframes pd-status-error-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-2px);
+    }
+    40% {
+      transform: translateX(2px);
+    }
+    60% {
+      transform: translateX(-1px);
+    }
+    80% {
+      transform: translateX(1px);
+    }
+  }
+  
+  .pd-widget--success .pd-widget__status {
+    animation: pd-status-success-pulse 900ms ease-out 1;
+  }
+  
+  .pd-widget--error .pd-widget__status {
+    animation: pd-status-error-shake 260ms ease-out 1;
+  }
+  
+  /* Submitting state hint */
+  .pd-widget--submitting .pd-widget__button {
+    cursor: progress;
+  }

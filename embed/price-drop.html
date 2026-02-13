@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Price Drop Widget Embed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <!-- Container where the widget will be mounted -->
+    <div id="price-drop-widget-root"></div>
+
+    <!-- Widget bundle served from same origin -->
+    <script src="/assets/price-drop-widget.min.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var name = params.get("name") || "(Unknown product)";
+        var price = params.get("price") || "";
+        var url = params.get("url") || window.location.href;
+
+        var root = document.getElementById("price-drop-widget-root");
+        if (!root) return;
+
+        var apiBase = window.location.origin;
+        var endpoint = apiBase + "/subscribe-price-drop";
+
+        function onSubscribed() {
+          if (window.parent !== window) {
+            window.parent.postMessage(
+              { type: "price-drop-widget:subscribed", url: url },
+              "*"
+            );
+          }
+        }
+
+        if (
+          window.PriceDropWidget &&
+          typeof window.PriceDropWidget.initPriceDropWidget === "function"
+        ) {
+          window.PriceDropWidget.initPriceDropWidget({
+            name: name,
+            price: price,
+            url: url,
+            mountEl: root,
+            endpoint: endpoint,
+            onSubscribed: onSubscribed,
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
